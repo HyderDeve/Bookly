@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi.exceptions import HTTPException
 from typing import List
-from src.books.structs import Book, BookUpdateModel, BookCreateModel
+from src.books.structs import Book, BookUpdateModel, BookCreateModel, BookResponse
 from src.db.main import get_session
 from src.books.services import BookService
 
@@ -18,7 +18,7 @@ async def get_all_books(session: AsyncSession = Depends(get_session)):
     return books # the list of books will be returned as a JSON response
 
 #POST /books
-@book_router.post("/", status_code=status.HTTP_201_CREATED, response_model=Book)
+@book_router.post("/", status_code=status.HTTP_201_CREATED, response_model=BookResponse)
 async def post_books(book_data:BookCreateModel,session: AsyncSession = Depends(get_session)):
     new_book = await book_service.create_book(book_data,session)  # Create a new book using the service layer
 
