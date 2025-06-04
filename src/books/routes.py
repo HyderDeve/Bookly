@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi.exceptions import HTTPException
 from typing import List
-from src.books.structs import Book, BookUpdateModel, BookCreateModel, BookResponse
+from src.books.structs import BookUpdateModel, BookCreateModel, BookResponse
 from src.db.main import get_session
 from src.books.services import BookService
 
@@ -12,7 +12,7 @@ book_service = BookService()
 
 
 #GET /books
-@book_router.get("/", response_model=List[Book])
+@book_router.get("/", response_model=List[BookResponse])
 async def get_all_books(session: AsyncSession = Depends(get_session)):
     books = await book_service.get_all_books(session)  # Fetch all books using the service layer
     return books # the list of books will be returned as a JSON response
