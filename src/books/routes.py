@@ -42,7 +42,7 @@ async def get_book_by_id(book_id:str, session: AsyncSession = Depends(get_sessio
                             detail=f"Book with id {book_id} not found.")
 
 #PUT /books/{id}
-@book_router.patch("/{book_id}")
+@book_router.patch("/{book_id}",response_model=BookResponse)
 async def update_book(book_id:str, book_update_data:BookUpdateModel,session: AsyncSession = Depends(get_session)) -> dict:
     
     updated_book =await book_service.update_book(book_id,book_update_data, session)
