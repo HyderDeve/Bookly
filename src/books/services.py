@@ -57,5 +57,7 @@ class BookService:
             
             await session.commit()
 
+            return {}
+
         else:
             return None  # If book is not found, return None or handle as needed
