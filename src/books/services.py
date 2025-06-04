@@ -13,7 +13,7 @@ class BookService:
         return result.all()
 
     async def get_book_by_id(self, book_id:str, session: AsyncSession):
-        statement = select(Book).where(Book.uid == book_id)
+        statement = select(Book).where(Book.id == book_id)
 
         result = await session.exec(statement)
 
