@@ -6,7 +6,7 @@ import uuid # this is the unique id generator uuid is unique id
 class Book(SQLModel, table=True):
     __tablename__ = "books"  # Define the table name in the database
 
-    uid: uuid.UUID = Field(
+    id: uuid.UUID = Field(
         sa_column=Column(
             pg.UUID,
             nullable=False,

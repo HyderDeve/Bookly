@@ -2,6 +2,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from .structs import BookCreateModel, BookUpdateModel
 from .models import Book
 from sqlmodel import select, desc
+from datetime import datetime
+
 class BookService:
     async def get_all_books(self, session: AsyncSession): #this session is an obj used for interaction with db
         statement = select(Book).order_by(desc(Book.created_at))  #this is the ORM use in python where SQLMODEL allows sql in form of python code
@@ -26,6 +28,8 @@ class BookService:
             **book_data_dict  # Unpack the dictionary into the Book model basically how we used to assign 
             #response body to the model in fastapi & golang
         )
+
+        new_book.published_date = datetime.strptime(book_data_dict['published_date'],"%Y-%m-%d")  # Set the published date to today
 
         session.add(new_book)  # Add the new book to the session
         await session.commit() #commits the changes to the db
