@@ -15,7 +15,6 @@ class UserCreateModel(BaseModel):
 class UserResponse(BaseModel):
     id : uuid.UUID
     username : str
-    password : str 
     email:str  
     first_name:str
     last_name:str
