@@ -15,9 +15,14 @@ class UserCreateModel(BaseModel):
 class UserResponse(BaseModel):
     id : uuid.UUID
     username : str
-    email:str  
+    email:str
+    password : str = Field(exclude=True)
     first_name:str
     last_name:str
     is_verified:bool
     created_at: datetime 
     updated_at: datetime 
+
+class UserLoginModel(BaseModel):
+    email: str
+    password: str
