@@ -15,7 +15,7 @@ class User(SQLModel,table=True):
         default=uuid.uuid4 # Automatically generate a new UUID for each user
     ))
     username : str
-    password : str
+    password : str = Field(exclude=True)  # Exclude password from the model representation
     email:str  # Email should be unique, consider adding a unique constraint in the database
     first_name:str
     last_name:str
