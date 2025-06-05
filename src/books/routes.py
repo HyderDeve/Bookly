@@ -61,8 +61,8 @@ async def update_book(book_id:str, book_update_data:BookUpdateModel,session: Asy
 async def delete_book(book_id:str,session: AsyncSession = Depends(get_session)):
     delete_book = await book_service.delete_book(book_id, session)
 
-    if delete_book:
-        return {"message": "Book deleted successfully."}
-    else:
+    if delete_book is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+    else:
+        return {"message": "Book deleted successfully."}
 
