@@ -1,0 +1,16 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "FastAPI Dev",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceRoot}\\env\\Scripts\\uvicorn.exe", // Explicit path to uvicorn
+            "console": "integratedTerminal",
+            "args": [
+                "src.__init__:app", // Correct path to your FastAPI app instance
+                "--reload"
+            ]
+        }
+    ]
+}
