@@ -3,7 +3,7 @@ from .structs import UserCreateModel
 from .utils import generate_hash_password
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
-
+from fastapi.responses import JSONResponse
 
 
 class UserService:
@@ -38,4 +38,19 @@ class UserService:
         await session.commit()
 
         return new_user
+
+
+    async def get_user_by_id(self, user_id: str, session: AsyncSession):
+
+        statement = select(User).where(User.id == user_id)
+
+        result = await session.exec(statement)
+
+        user = result.first()
+
+        return user if not None else JSONResponse(
+            content={
+                'detail': 'User not found'
+            }
+        )
 

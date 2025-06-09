@@ -3,6 +3,9 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer
 from fastapi.security.http import HTTPAuthorizationCredentials
 from .utils import decode_token
+from sqlmodel.ext.asyncio.session import AsyncSession
+from src.db.main import get_session
+from src.auth.services import UserService
 
 
 class TokenBearer(HTTPBearer): 
@@ -59,3 +62,67 @@ class RefreshTokenBearer(TokenBearer):
                 detail="Provide a valid refresh token",
             ) 
 
+
+
+
+async def get_current_user(
+    token_data: dict = Depends(AccessTokenBearer()),
+    session: AsyncSession = Depends(get_session)
+) -> dict:
+    """
+    Get the current authenticated user from the token
+    """
+    try:
+        user_service = UserService()
+        user_id = token_data.get('user', {}).get('user_id')
+        
+        if not user_id:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User ID not found in token"
+            )
+            
+        user = await user_service.get_user_by_id(user_id, session)
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="User not found"
+            )
+            
+        return user
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e)
+        )
+
+async def role_checker(
+    token_data: dict = Depends(AccessTokenBearer())
+) -> bool:
+    """
+    Check if the user has the required role
+    """
+    try:
+        user_data = token_data.get('user', {})
+        user_role = user_data.get('role')
+        
+        if not user_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Role not found in token"
+            )
+        
+        # Add your role-based logic here
+        # For example, checking if user is admin
+        if user_role not in ['admin', 'user']:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Invalid role"
+            )
+            
+        return True
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=str(e)
+        )

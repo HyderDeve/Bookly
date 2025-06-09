@@ -1,7 +1,8 @@
-from sqlmodel import SQLModel, Field, Column
+from sqlmodel import SQLModel, Field, Column, Relationship
 import sqlalchemy.dialects.postgresql as pg
 from datetime import datetime, date
 from typing import Optional
+from src.auth import models
 import uuid # this is the unique id generator uuid is unique id
 
 class Book(SQLModel, table=True):
@@ -23,6 +24,7 @@ class Book(SQLModel, table=True):
     user_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'users.id')
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
+    user : Optional['models.User']  = Relationship(back_populates = 'books')
     #Column is used to define a pydantic column in db
     #sa_column is used to define a sqlalchemy column in db
 
