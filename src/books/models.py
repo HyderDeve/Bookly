@@ -1,6 +1,7 @@
 from sqlmodel import SQLModel, Field, Column
 import sqlalchemy.dialects.postgresql as pg
 from datetime import datetime, date
+from typing import Optional
 import uuid # this is the unique id generator uuid is unique id
 
 class Book(SQLModel, table=True):
@@ -19,6 +20,7 @@ class Book(SQLModel, table=True):
     published_date: date # all fields data must match the type defined in the model
     page_count: int
     language: str
+    user_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'users.id')
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
     #Column is used to define a pydantic column in db
