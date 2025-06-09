@@ -108,7 +108,7 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
 
 
 @auth_router.get("/logout", status_code=status.HTTP_200_OK)
-async def revoke_token(token_details:dict = Depends(AccessTokenBearer)):
+async def revoke_token(token_details:dict = Depends(AccessTokenBearer())):
     
     jti = token_details['jti']
 
