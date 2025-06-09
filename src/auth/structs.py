@@ -1,7 +1,8 @@
 from pydantic import BaseModel, Field
 from datetime import datetime
 import uuid
-
+from typing import List
+from src.books.models import Book  # As Book model is defined in src/books/models.py
 
 class UserCreateModel(BaseModel):
     username: str = Field(max_length=50)
@@ -20,6 +21,7 @@ class UserResponse(BaseModel):
     first_name:str
     last_name:str
     is_verified:bool
+    books : List[Book]
     created_at: datetime 
     updated_at: datetime 
 

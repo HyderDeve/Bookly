@@ -6,7 +6,7 @@ from src.db.main import get_session
 from .utils import create_access_token, decode_token,verify_password
 from datetime import timedelta
 from fastapi.responses import JSONResponse
-from .dependencies import AccessTokenBearer, RefreshTokenBearer
+from .dependencies import AccessTokenBearer, RefreshTokenBearer, role_checker, get_current_user
 from datetime import datetime, timedelta
 
 
@@ -104,3 +104,11 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
     )
 
     return {}
+
+
+# GET /auth/me
+@auth_router.get('/me',response_model=UserResponse)
+async def get_current_user(user = Depends(get_current_user), _: bool = Depends(role_checker)):
+
+    return user
+    
