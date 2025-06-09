@@ -8,6 +8,7 @@ from datetime import timedelta
 from fastapi.responses import JSONResponse
 from .dependencies import AccessTokenBearer, RefreshTokenBearer
 from datetime import datetime, timedelta
+from src.db.redis import add_jti_to_blocklist
 
 
 auth_router = APIRouter()
@@ -104,3 +105,17 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
     )
 
     return {}
+
+
+@auth_router.get("/logout", status_code=status.HTTP_200_OK)
+async def revoke_token(token_details:dict = Depends(AccessTokenBearer)):
+    
+    jti = token_details['jti']
+
+    await add_jti_to_blocklist(jti)
+
+    return JSONResponse(
+        content={
+            'message': 'Logout Successfully'
+        }
+    )
