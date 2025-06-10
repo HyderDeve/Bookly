@@ -18,7 +18,7 @@ app = FastAPI(
     title= "Bookly",
     description= "A RESTAPI for a book review web service",
     version = version,
-    lifespan=life_span # This is like the main function in golang
+    # lifespan=life_span # This is like the main function in golang
 )
 
 app.include_router(book_router, prefix=f"/api/{version}/books", tags=["books"]) # This is like the router group or the api group
