@@ -20,6 +20,7 @@ class User(SQLModel,table=True):
     email:str  # Email should be unique, consider adding a unique constraint in the database
     first_name:str
     last_name:str
+    role : str = Field(sa_column = Column(pg.VARCHAR, nullable = False, server_default = 'user')) # Default role is user, can be updated later
     is_verified:bool = Field(default=False)  # Default to False, can be updated later
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=datetime.now))
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=datetime.now))
