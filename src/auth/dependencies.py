@@ -7,6 +7,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from src.auth.services import UserService
 
+user_service = UserService()
 
 class TokenBearer(HTTPBearer): 
     
@@ -67,33 +68,35 @@ class RefreshTokenBearer(TokenBearer):
 
 async def get_current_user(
     token_data: dict = Depends(AccessTokenBearer()),
-    session: AsyncSession = Depends(get_session)
-) -> dict:
+    session: AsyncSession = Depends(get_session)):
     """
     Get the current authenticated user from the token
     """
     try:
-        user_service = UserService()
-        user_id = token_data.get('user', {}).get('user_id')
-        
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="User ID not found in token"
-            )
-            
-        user = await user_service.get_user_by_id(user_id, session)
+        user_id = token_data['user']['user_id']    
+
+        user = await user_service.get_user_by_id(user_id,session)
         if not user:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="User not found"
             )
-            
+        
         return user
-    except Exception as e:
+    
+    except KeyError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e)
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid token structure: missing user email"
+        )
+    except HTTPException as http_exc:
+        # Re-raise HTTP exceptions with their original status code and detail
+        raise http_exc
+    except Exception as e:
+        # Log unexpected errors here
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An unexpected error occurred: {str(e)}"
         )
 
 async def role_checker(

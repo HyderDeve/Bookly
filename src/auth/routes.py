@@ -108,7 +108,7 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
 
 # GET /auth/me
 @auth_router.get('/me',response_model=UserResponse)
-async def get_current_user(user = Depends(get_current_user), _: bool = Depends(role_checker)):
+async def get_current_user(user = Depends(get_current_user)):
 
     return user
     
