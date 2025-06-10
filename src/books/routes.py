@@ -6,15 +6,16 @@ from src.books.structs import BookUpdateModel, BookCreateModel, BookResponse
 from src.db.main import get_session
 from src.books.services import BookService
 from src.auth.dependencies import AccessTokenBearer
-
+from src.auth.dependencies import RoleChecker
 
 book_router = APIRouter()
 book_service = BookService() #declared service struct for connection purposes to bring service functions here
 access_token_bearer = AccessTokenBearer()  # Initialize the AccessTokenBearer for token validation
+role_checker = Depends(RoleChecker(['admin','user']))
 
 
 #GET /books
-@book_router.get("/", response_model=List[BookResponse])
+@book_router.get("/", response_model=List[BookResponse],dependencies = [role_checker])
 async def get_all_books(
     session: AsyncSession = Depends(get_session),
     token_details : dict = Depends(access_token_bearer)
@@ -24,7 +25,7 @@ async def get_all_books(
 
 
 #GET /books/user/{user_id}
-@book_router.get("/user/{user_id}", response_model=List[BookResponse])
+@book_router.get("/user/{user_id}", response_model=List[BookResponse],dependencies = [role_checker])
 async def get_user_books(
     user_id : str,
     session: AsyncSession = Depends(get_session),
@@ -35,7 +36,7 @@ async def get_user_books(
 
 
 #POST /books
-@book_router.post("/", status_code=status.HTTP_201_CREATED, response_model=BookResponse)
+@book_router.post("/", status_code=status.HTTP_201_CREATED, response_model=BookResponse,dependencies = [role_checker])
 async def post_books(book_data:BookCreateModel,session: AsyncSession = Depends(get_session),token_details : dict = Depends(access_token_bearer)):
     
     user_id = token_details.get('user')['user_id']
@@ -50,7 +51,7 @@ async def post_books(book_data:BookCreateModel,session: AsyncSession = Depends(g
 
 
 #GET /books/{id}
-@book_router.get("/{book_id}",status_code=status.HTTP_200_OK,response_model=BookResponse)
+@book_router.get("/{book_id}",status_code=status.HTTP_200_OK,response_model=BookResponse,dependencies = [role_checker])
 async def get_book_by_id(book_id:str, session: AsyncSession = Depends(get_session),token_details : dict = Depends(access_token_bearer)):
     
     book = await book_service.get_book_by_id(book_id,session)
@@ -62,7 +63,7 @@ async def get_book_by_id(book_id:str, session: AsyncSession = Depends(get_sessio
                             detail=f"Book with id {book_id} not found.")
 
 #PUT /books/{id}
-@book_router.patch("/{book_id}",response_model=BookResponse)
+@book_router.patch("/{book_id}",response_model=BookResponse,dependencies = [role_checker])
 async def update_book(book_id:str, book_update_data:BookUpdateModel,session: AsyncSession = Depends(get_session),token_details : dict = Depends(access_token_bearer)) -> dict:
     
     updated_book =await book_service.update_book(book_id,book_update_data, session)
@@ -77,7 +78,7 @@ async def update_book(book_id:str, book_update_data:BookUpdateModel,session: Asy
     
 
 #DELETE /books/{id}
-@book_router.delete("/{book_id}")
+@book_router.delete("/{book_id}",dependencies = [role_checker])
 async def delete_book(book_id:str,session: AsyncSession = Depends(get_session),token_details : dict = Depends(access_token_bearer)):
     delete_book = await book_service.delete_book(book_id, session)
 

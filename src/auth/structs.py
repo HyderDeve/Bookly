@@ -20,6 +20,7 @@ class UserResponse(BaseModel):
     password : str = Field(exclude=True)
     first_name:str
     last_name:str
+    role : str
     is_verified:bool
     books : List[Book]
     created_at: datetime 

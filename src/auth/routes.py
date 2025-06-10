@@ -6,12 +6,13 @@ from src.db.main import get_session
 from .utils import create_access_token, decode_token,verify_password
 from datetime import timedelta
 from fastapi.responses import JSONResponse
-from .dependencies import AccessTokenBearer, RefreshTokenBearer, role_checker, get_current_user
+from .dependencies import AccessTokenBearer, RefreshTokenBearer, RoleChecker, get_current_user
 from datetime import datetime, timedelta
 
 
 auth_router = APIRouter()
 user_service = UserService()  # Create an instance of UserService for handling user operations
+role_checker = RoleChecker(['admin','user'])
 
 REFRESH_TOKEN_EXPIRY = 2
 
@@ -48,7 +49,8 @@ async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(
             access_token = create_access_token(
                 user_data = {
                     'email': user.email,
-                    'user_id': str(user.id)
+                    'user_id': str(user.id),
+                    'role': user.role
                 }
             )
 
@@ -108,7 +110,9 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
 
 # GET /auth/me
 @auth_router.get('/me',response_model=UserResponse)
-async def get_current_user(user = Depends(get_current_user)):
+async def get_current_user(
+    user = Depends(get_current_user),
+    _ : bool = Depends(role_checker)):
 
     return user
     

@@ -32,6 +32,8 @@ class UserService:
             **user_data_dict  # Unpack the dictionary into the User model
         )
         new_user.password = generate_hash_password(user_data_dict['password'])  # Hash the password before saving
+        
+        new_user.role = 'user'
 
         session.add(new_user)  # Add the new user to the session
 

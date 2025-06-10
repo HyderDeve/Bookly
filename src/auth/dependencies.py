@@ -6,6 +6,8 @@ from .utils import decode_token
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from src.auth.services import UserService
+from typing import List
+from .models import User
 
 user_service = UserService()
 
@@ -98,34 +100,19 @@ async def get_current_user(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An unexpected error occurred: {str(e)}"
         )
+    
+class RoleChecker:
+    def __init__(self, allowed_roles : List[str]) -> None:
+        
+        self.allowed_roles = allowed_roles
+    
+    def __call__(self, current_user : User = Depends(get_current_user)) -> any:
+        
+        if current_user.role in self.allowed_roles:
 
-async def role_checker(
-    token_data: dict = Depends(AccessTokenBearer())
-) -> bool:
-    """
-    Check if the user has the required role
-    """
-    try:
-        user_data = token_data.get('user', {})
-        user_role = user_data.get('role')
-        
-        if not user_role:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Role not found in token"
-            )
-        
-        # Add your role-based logic here
-        # For example, checking if user is admin
-        if user_role not in ['admin', 'user']:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Invalid role"
-            )
-            
-        return True
-    except Exception as e:
+            return True
+
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=str(e)
+            status_code = status.HTTP_403_FORBIDDEN,
+            detail = 'Not authorized to perform this action'
         )
