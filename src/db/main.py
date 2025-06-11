@@ -22,7 +22,7 @@ engine = AsyncEngine(
 #DB connection function 
 async def init_db():
     async with engine.begin() as conn: #connection object created
-        from src.books.models import Book
+        from src.db.models import Book
 
         await conn.run_sync(SQLModel.metadata.create_all)  # Create all tables in the database migrations jesa hai golang ki hisab se
         
