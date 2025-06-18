@@ -5,6 +5,7 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from .structs import ReviewCreateModel
 from fastapi.exceptions import HTTPException
 from fastapi import status
+from sqlmodel import select, desc
 
 
 book_service = BookService
@@ -49,6 +50,52 @@ class ReviewService:
             return new_review
 
         except Exception as e:
+            raise HTTPException(
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail = str(e)
+            )
+    
+    async def get_all_reviews(self, session : AsyncSession):
+
+        try:
+            statement = select(Review).desc(Review.created_at)
+
+            result = await session.exec(statement)
+
+            books = result.all()
+
+
+            return books
+        
+        except Exception as e:
+
+            raise HTTPException(
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail = str(e)
+            )
+    
+
+    async def get_review_by_id(self, review_id : str, session : AsyncSession):
+
+        try:
+            if review_id is not None:
+                statement = select(Review).where(Review.id == review_id).desc(Review.created_at)
+
+                result = await session.exec(statement)
+
+                books = result
+
+
+                return books
+            
+            else:
+                raise HTTPException(
+                    status_code = status.HTTP_404_NOT_FOUND,
+                    detail = 'Review not found'
+                )
+        
+        except Exception as e:
+
             raise HTTPException(
                 status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail = str(e)
