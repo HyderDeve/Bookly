@@ -27,3 +27,12 @@ async def get_all_reviews(session : AsyncSession = Depends(get_session)):
     books = await review_service.get_all_reviews(session)
 
     return books
+
+@review_router.get('/{review_id}', response_model = ReviewResponse)
+async def get_review_by_id(review_id : str, session : AsyncSession = Depends(get_session)):
+
+    review = await review_service.get_review_by_id(review_id, session)
+
+    return review
+
+
