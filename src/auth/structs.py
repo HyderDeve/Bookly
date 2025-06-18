@@ -3,6 +3,8 @@ from datetime import datetime
 import uuid
 from typing import List
 from src.db.models import Book  # As Book model is defined in src/books/models.py
+from src.reviews.structs import ReviewResponse
+
 
 class UserCreateModel(BaseModel):
     username: str = Field(max_length=50)
@@ -28,6 +30,7 @@ class UserResponse(BaseModel):
 
 class UserBooks(UserResponse):
     books : List[Book]
+    reviews : List[ReviewResponse]
 
 
 class UserLoginModel(BaseModel):

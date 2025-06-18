@@ -52,7 +52,7 @@ class Book(SQLModel, table=True):
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
     updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
     user : Optional['User']  = Relationship(back_populates = 'books')
-    reviews : List['Review']  = Relationship(back_populates = 'books',sa_relationship_kwargs = {'lazy': 'selectin'})
+    reviews : List['Review']  = Relationship(back_populates = 'book',sa_relationship_kwargs = {'lazy': 'selectin'}) #back_populates contains the key name defined in the origin model
     
     #Column is used to define a pydantic column in db
     #sa_column is used to define a sqlalchemy column in db
