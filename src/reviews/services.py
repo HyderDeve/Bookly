@@ -58,7 +58,7 @@ class ReviewService:
     async def get_all_reviews(self, session : AsyncSession):
 
         try:
-            statement = select(Review).desc(Review.created_at)
+            statement = select(Review).order_by(desc(Review.created_at))
 
             result = await session.exec(statement)
 
@@ -79,7 +79,7 @@ class ReviewService:
 
         try:
             if review_id is not None:
-                statement = select(Review).where(Review.id == review_id).desc(Review.created_at)
+                statement = select(Review).where(Review.id == review_id)
 
                 result = await session.exec(statement)
 
@@ -108,7 +108,7 @@ class ReviewService:
 
             if review_id is not None:
 
-                statement = select(Review).where(Review.id == review_id).desc(Review.created_at)
+                statement = select(Review).where(Review.id == review_id)
 
                 result = await session.exec(statement)
 
