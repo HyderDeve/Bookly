@@ -1,6 +1,6 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
 from .structs import BookCreateModel, BookUpdateModel
-from .models import Book
+from src.db.models import Book
 from sqlmodel import select, desc
 from datetime import datetime
 

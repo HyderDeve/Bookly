@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Depends
 from sqlmodel.ext.asyncio.session import AsyncSession
 from fastapi.exceptions import HTTPException
 from typing import List
-from src.books.structs import BookUpdateModel, BookCreateModel, BookResponse
+from .structs import BookUpdateModel, BookCreateModel, BookResponse, BookDetailResponse
 from src.db.main import get_session
 from src.books.services import BookService
 from src.auth.dependencies import AccessTokenBearer
@@ -51,7 +51,7 @@ async def post_books(book_data:BookCreateModel,session: AsyncSession = Depends(g
 
 
 #GET /books/{id}
-@book_router.get("/{book_id}",status_code=status.HTTP_200_OK,response_model=BookResponse,dependencies = [role_checker])
+@book_router.get("/{book_id}", status_code = status.HTTP_200_OK, response_model = BookDetailResponse, dependencies = [role_checker])
 async def get_book_by_id(book_id:str, session: AsyncSession = Depends(get_session),token_details : dict = Depends(access_token_bearer)):
     
     book = await book_service.get_book_by_id(book_id,session)
