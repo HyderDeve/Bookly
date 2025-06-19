@@ -85,3 +85,40 @@ class Review(SQLModel, table=True):
     def __repr__(self):
         return f"<Review for book {self.book_id} by user {self.user_id}>"
     
+class BookTags(SQLModel, table = True):
+    
+    book_id : uuid.UUID = Field(
+            primary_key = True,
+            foreign_key = 'books.id',
+            default = None
+        )
+    
+    tag_id : uuid.UUID = Field(
+                primary_key = True,
+                foreign_key = 'tags.id',
+                default = None
+        )
+    
+class Tag(SQLModel, table = True):
+
+    __tablename__ = 'tags'
+
+    id : uuid.UUID = Field(
+        sa_column = Column(
+            pg.UUID,
+            nullable = False,
+            primary_key = True,
+            default = uuid.uuid4
+        )
+    )
+    name : str
+    created_at : datetime = Field(sa_column = Column(pg.TIMESTAMP, default = datetime.now()))
+    #updated at not created tags aren't updated they are either used or unused 
+    books : List['Book'] = Relationship( # created for filteration purposes usally
+        link_model = BookTags,
+        back_populates = 'tags',
+        sa_relationship_kwargs = {'lazy' : 'selectin'},
+    )
+
+    def __repr__(self):
+        return f'<Tag {self.name}>'
