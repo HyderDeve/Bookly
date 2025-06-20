@@ -42,6 +42,14 @@ async def get_tag_by_id(tag_id : str, token_details = Depends(access_token_beare
             status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail = str(e)
         )
+    
+
+@tag_router.post('/', response_model = TagResponse)
+async def create_tag(tag_data : TagCreateRequest, token_details = Depends(access_token_bearer), session : AsyncSession = Depends(get_session)):
+        
+        tag = await tags_service.create_tag(tag_data, session)
+
+        return tag
 
 @tag_router.delete('/{tag_id}')
 async def delete_tags(tag_id : str, token_details = Depends(access_token_bearer), session : AsyncSession = Depends(get_session)):
@@ -49,7 +57,10 @@ async def delete_tags(tag_id : str, token_details = Depends(access_token_bearer)
     tag = await tags_service.delete_tag(session)
     
     if tag is not None:
-        return {'message' : 'Tag deleted successfully'}
+        return JSONResponse(
+            status_code = status.HTTP_200_OK,
+            content = {'message' : 'Tag deleted successfully'}
+        )
     else:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
