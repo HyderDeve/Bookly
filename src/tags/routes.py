@@ -64,5 +64,5 @@ async def delete_tags(tag_id : str, token_details = Depends(access_token_bearer)
     else:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
-            detail = 'Tag not found'
+            detail = 'Tag not found routes'
         ) #baki errors service mein daal dena hai
