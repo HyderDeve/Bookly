@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, date
 from typing import List
 from src.reviews.structs import ReviewResponse 
+from src.tags.structs import TagResponse
 
 class BookResponse(BaseModel):
     id: uuid.UUID
@@ -17,6 +18,7 @@ class BookResponse(BaseModel):
 
 class BookDetailResponse(BookResponse):
     reviews: List[ReviewResponse]
+    tags : List[TagResponse]
 
 
 class BookCreateModel(BaseModel):

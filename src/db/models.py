@@ -30,61 +30,6 @@ class User(SQLModel,table=True):
         return f"<User {self.username}>" 
     
 
-
-
-class Book(SQLModel, table=True):
-    __tablename__ = "books"  # Define the table name in the database
-
-    id: uuid.UUID = Field(
-        sa_column=Column(
-            pg.UUID,
-            nullable=False,
-            primary_key=True,
-            default=uuid.uuid4,  # Automatically generate a unique & random ID
-        )
-    )
-    title: str
-    author: str
-    published_date: date # all fields data must match the type defined in the model
-    page_count: int
-    language: str
-    user_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'users.id')
-    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
-    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
-    user : Optional['User']  = Relationship(back_populates = 'books')
-    reviews : List['Review']  = Relationship(back_populates = 'book',sa_relationship_kwargs = {'lazy': 'selectin'}) #back_populates contains the key name defined in the origin model
-    
-    #Column is used to define a pydantic column in db
-    #sa_column is used to define a sqlalchemy column in db
-
-    def __repr__(self):
-        return f"<Book {self.title}>"
-
-class Review(SQLModel, table=True):
-    __tablename__ = "reviews"  # Define the table name in the database
-
-    id: uuid.UUID = Field(
-        sa_column=Column(
-            pg.UUID,
-            nullable=False,
-            primary_key=True,
-            default=uuid.uuid4,  # Automatically generate a unique & random ID
-        )
-    )
-    rating : int = Field(lt = 5)
-    review : str
-    user_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'users.id')
-    book_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'books.id')
-    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
-    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
-    user : Optional['User']  = Relationship(back_populates = 'reviews')
-    book : Optional['Book']  = Relationship(back_populates = 'reviews')
-    #Column is used to define a pydantic column in db
-    #sa_column is used to define a sqlalchemy column in db
-
-    def __repr__(self):
-        return f"<Review for book {self.book_id} by user {self.user_id}>"
-    
 class BookTags(SQLModel, table = True):
     
     book_id : uuid.UUID = Field(
@@ -98,7 +43,9 @@ class BookTags(SQLModel, table = True):
                 foreign_key = 'tags.id',
                 default = None
         )
-    
+
+
+
 class Tag(SQLModel, table = True):
 
     __tablename__ = 'tags'
@@ -122,3 +69,63 @@ class Tag(SQLModel, table = True):
 
     def __repr__(self):
         return f'<Tag {self.name}>'
+
+
+class Book(SQLModel, table=True):
+    __tablename__ = "books"  # Define the table name in the database
+
+    id: uuid.UUID = Field(
+        sa_column=Column(
+            pg.UUID,
+            nullable=False,
+            primary_key=True,
+            default=uuid.uuid4,  # Automatically generate a unique & random ID
+        )
+    )
+    title: str
+    author: str
+    published_date: date # all fields data must match the type defined in the model
+    page_count: int
+    language: str
+    user_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'users.id')
+    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
+    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
+    user : Optional['User']  = Relationship(back_populates = 'books')
+    reviews : List['Review']  = Relationship(back_populates = 'book',sa_relationship_kwargs = {'lazy': 'selectin'}) #back_populates contains the key name defined in the origin model
+    tags : List['Tag'] = Relationship(
+        link_model = BookTags,
+        back_populates = 'books',
+        sa_relationship_kwargs = {'lazy': 'selectin'}, 
+    )
+    
+    #Column is used to define a pydantic column in db
+    #sa_column is used to define a sqlalchemy column in db
+
+    def __repr__(self):
+        return f"<Book {self.title}>"
+
+class Review(SQLModel, table=True):
+    __tablename__ = "reviews"  # Define the table name in the database
+
+    id: uuid.UUID = Field(
+        sa_column=Column(
+            pg.UUID,
+            nullable=False,
+            primary_key=True,
+            default=uuid.uuid4,  # Automatically generate a unique & random ID
+        )
+    )
+    rating : int = Field(lt = 5)
+    review : str = Field(sa_column = Column(pg.VARCHAR, nullable = False))
+    user_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'users.id')
+    book_id : Optional[uuid.UUID] = Field(default = None, foreign_key = 'books.id')
+    created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
+    updated_at: datetime = Field(sa_column=Column(pg.TIMESTAMP,default=(datetime.now))) 
+    user : Optional['User']  = Relationship(back_populates = 'reviews')
+    book : Optional['Book']  = Relationship(back_populates = 'reviews')
+    #Column is used to define a pydantic column in db
+    #sa_column is used to define a sqlalchemy column in db
+
+    def __repr__(self):
+        return f"<Review for book {self.book_id} by user {self.user_id}>"
+    
