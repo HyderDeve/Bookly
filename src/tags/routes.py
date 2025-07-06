@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 from src.auth.dependencies import AccessTokenBearer
 from .services import TagService
 from .structs import TagCreateRequest, TagAddRequest, TagResponse
+from src.books.structs import BookResponse,BookDetailResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from typing import List
@@ -50,6 +51,15 @@ async def create_tag(tag_data : TagCreateRequest, token_details = Depends(access
         tag = await tags_service.create_tag(tag_data, session)
 
         return tag
+
+
+@tag_router.post('/book/{book_id}', response_model = BookDetailResponse)
+async def add_tags_to_book(book_id : str, tag_data : TagAddRequest, session :AsyncSession = Depends(get_session)):
+
+    book_with_tag = await tags_service.add_tag_to_book(book_id = book_id, tag_data = tag_data, session = session)
+
+    return book_with_tag
+    
 
 @tag_router.delete('/{tag_id}')
 async def delete_tags(tag_id : str, token_details = Depends(access_token_bearer), session : AsyncSession = Depends(get_session)):

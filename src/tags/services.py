@@ -1,17 +1,20 @@
+from sqlmodel import select, desc
 from src.db.models import Tag, BookTags
-from fastapi import Depends, status
+from fastapi import status, HTTPException
 from fastapi.responses import JSONResponse
-from .structs import TagCreateRequest, TagAddRequest, TagResponse
+from .structs import TagCreateRequest, TagAddRequest
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.db.main import get_session
+from src.books.services import BookService
+
+book_service = BookService()
 
 
 class TagService:
 
-    async def get_all_tags(self,session: AsyncSession = Depends(get_session)):
+    async def get_all_tags(self,session: AsyncSession):
 
         try:
-            statement = 'select * from tags order by created_at desc;'
+            statement = select(Tag).order_by(desc(Tag.created_at))
 
             tags = await session.exec(statement)
 
@@ -24,10 +27,10 @@ class TagService:
                 content = {'message' : str(e)}
             )
     
-    async def get_tag_by_id(self, tag_id : str, session: AsyncSession = Depends(get_session)):
+    async def get_tag_by_id(self, tag_id : str, session: AsyncSession):
 
         try:
-            statement = f'select * from tags where id = \'{tag_id}\' ;'
+            statement = select(Tag).where(Tag.id == tag_id)
 
             tag = await session.exec(statement)
 
@@ -41,17 +44,24 @@ class TagService:
             )
 
 
-    async def create_tag(self,tag_data : TagAddRequest, session : AsyncSession = Depends(get_session)):
+    async def create_tag(self, tag_data : TagCreateRequest, session : AsyncSession):
 
         try:
+            
+            statement = select(Tag).where(Tag.name == tag_data.name)
 
-            tag_dict = tag_data.model_dump()
+            result = await session.exec(statement)
 
-            new_tag = Tag(
-                **tag_dict
+            tag = result.first()
+
+            if tag:
+                raise HTTPException(
+                    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail = {'message' : 'Tag already exists'}
                 )
             
-
+            new_tag = Tag(name = tag_data.name)
+            
             session.add(new_tag)
 
             await session.commit()
@@ -64,8 +74,46 @@ class TagService:
                 status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content = {'message' : str(e)}
             )
-    
-    async def delete_tag(self, tag_id : str, session : AsyncSession = Depends(get_session)):
+
+    async def add_tag_to_book(self, book_id: str, tag_data: TagAddRequest, session: AsyncSession):
+        
+        try:
+            book = await book_service.get_book_by_id(book_id=book_id, session=session)
+
+            if not book:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail={'message': 'book not found'}
+                )
+
+            for tag_item in tag_data.tags:
+                # Find tag by name
+                statement = select(Tag).where(Tag.name == tag_item.name)
+                result = await session.exec(statement)
+                tag = result.one_or_none()
+
+                if not tag:
+                    tag = Tag(name=tag_item.name)
+                    
+                book.tags.append(tag)
+
+            session.add(book)
+
+            await session.commit()
+            
+            await session.refresh(book)
+
+                
+            return book
+        
+        except Exception as e:
+
+            raise HTTPException(
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail = {'message' : str(e)}
+            )
+
+    async def delete_tag(self, tag_id : str, session : AsyncSession):
 
         delete_tag = await self.get_tag_by_id(tag_id = tag_id, session = session)
 
