@@ -113,6 +113,39 @@ class TagService:
                 detail = {'message' : str(e)}
             )
 
+    async def update_tag(self, tag_id: str, tag_data : TagCreateRequest, session: AsyncSession):
+
+        try:
+            tag = await self.get_tag_by_id(tag_id = tag_id, session = session)
+
+            if tag is not None:
+
+                update_data_dict = tag_data.model_dump()
+
+                for key, value in update_data_dict.items():
+                    
+                    setattr(tag, key, value)
+
+
+                    await session.commit()
+
+                    await session.refresh(tag)
+                
+                return tag
+            
+            else:
+                raise HTTPException(
+                    status_code = status.HTTP_404_NOT_FOUND,
+                    detail = {'message':'Tag not found'}
+                )
+            
+        except Exception as e:
+            
+            raise HTTPException(
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail = {'message' : str(e)}
+            )
+    
     async def delete_tag(self, tag_id : str, session : AsyncSession):
 
         delete_tag = await self.get_tag_by_id(tag_id = tag_id, session = session)

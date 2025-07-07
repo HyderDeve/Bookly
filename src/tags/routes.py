@@ -54,12 +54,29 @@ async def create_tag(tag_data : TagCreateRequest, token_details = Depends(access
 
 
 @tag_router.post('/book/{book_id}', response_model = BookDetailResponse)
-async def add_tags_to_book(book_id : str, tag_data : TagAddRequest, session :AsyncSession = Depends(get_session)):
+async def add_tags_to_book(book_id : str, tag_data : TagAddRequest, token_details = Depends(access_token_bearer), session :AsyncSession = Depends(get_session)):
 
     book_with_tag = await tags_service.add_tag_to_book(book_id = book_id, tag_data = tag_data, session = session)
 
     return book_with_tag
     
+
+
+@tag_router.patch('/{tag_id}', response_model = TagResponse)
+async def update_tag(tag_id : str, tag_data : TagCreateRequest, token_details = Depends(access_token_bearer), session : AsyncSession = Depends(get_session)):
+
+    tag = await tags_service.update_tag(tag_id, tag_data, session)
+
+    if tag is not None:
+
+        return tag 
+    
+    else:
+        
+        raise HTTPException(
+            status_code = status.HTTP_404_NOT_FOUND,
+            detail = {'message' : 'Tag not found for updatation'}
+        )
 
 @tag_router.delete('/{tag_id}')
 async def delete_tags(tag_id : str, token_details = Depends(access_token_bearer), session : AsyncSession = Depends(get_session)):
