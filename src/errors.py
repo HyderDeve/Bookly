@@ -43,12 +43,12 @@ class TagNotFound(BooklyException):
     pass
 
 
-def create_error_handler(exec: HTTPException , initial_detail: Any) -> Callable[[Request, Exception], JSONResponse]:
+def create_error_handler(status_code : int , initial_detail: Any) -> Callable[[Request, Exception], JSONResponse]:
 
     async def error_handler(request: Request, exc: BooklyException):
 
         return JSONResponse(
-            status_code = exec.status_code,
+            status_code = status_code,
             content = initial_detail
         )
     
