@@ -1,4 +1,7 @@
-
+from fastapi import status, HTTPException
+from fastapi.requests import Request
+from fastapi.responses import JSONResponse
+from typing import Any, Callable
 
 class BooklyException(Exception):
     pass
@@ -38,3 +41,15 @@ class UserNotFound(BooklyException):
 class TagNotFound(BooklyException):
     """Tag with provided ID does not exist"""
     pass
+
+
+def create_error_handler(exec: HTTPException , initial_detail: Any) -> Callable[[Request, Exception], JSONResponse]:
+
+    async def error_handler(request: Request, exc: BooklyException):
+
+        return JSONResponse(
+            status_code = exec.status_code,
+            content = initial_detail
+        )
+    
+    return error_handler # returns the result of the async func just created
