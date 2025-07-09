@@ -10,6 +10,10 @@ class InvalidToken(BooklyException):
     """User has provided an Invalid Token"""
     pass
 
+class InvalidCredentials(BooklyException):
+    """Invalid Email or Password"""
+    pass
+
 class RevokedToken(BooklyException):
     """User has provided a Revoked Token"""
     pass
