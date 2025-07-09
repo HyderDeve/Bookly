@@ -37,6 +37,8 @@ app = FastAPI(
     # lifespan=life_span # This is like the main function in golang
 )
 
+#---------------------Custom Error Handlers added---------------------#
+
 app.add_exception_handler(
     UserAlreadyExists,
     create_error_handler(
@@ -151,10 +153,15 @@ app.add_exception_handler(
         }
     )
 )
+#---------------------Custom Error Handlers ended---------------------#
 
+
+#------------------All Routers Handled------------------#
 
 app.include_router(book_router, prefix=f"/api/{version}/books", tags=["books"]) # This is like the router group or the api group
 # or public groups like we defined in golang
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=["auth"])
 app.include_router(review_router, prefix = f'/api/{version}/reviews', tags = ['reviews'])
 app.include_router(tag_router, prefix = f'/api/{version}/tags', tags = ['tags'])
+
+#------------------All Routers Handled------------------#
