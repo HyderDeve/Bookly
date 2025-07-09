@@ -102,7 +102,4 @@ class RoleChecker:
 
             return True
 
-        raise HTTPException(
-            status_code = status.HTTP_403_FORBIDDEN,
-            detail = 'Not authorized to perform this action'
-        )
+        raise InsufficientPermission()
