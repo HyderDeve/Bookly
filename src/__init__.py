@@ -15,7 +15,9 @@ from src.errors import (
     UserAlreadyExists,
     UserNotFound,
     BookNotFound,
-    RevokedToken
+    RevokedToken,
+    TagNotFound,
+    TagAlreadyExists
 )
 
 @asynccontextmanager
@@ -63,6 +65,26 @@ app.add_exception_handler(
         status_code = status.HTTP_404_NOT_FOUND,
         initial_detail = {
             'message' : 'Book not found'
+        }
+    )
+)
+
+app.add_exception_handler(
+    TagNotFound,
+    create_error_handler(
+        status_code = status.HTTP_404_NOT_FOUND,
+        initial_detail = {
+            'message' : 'Tag not found'
+        }
+    )
+)
+
+app.add_exception_handler(
+    TagAlreadyExists,
+    create_error_handler(
+        status_code = status.HTTP_403_FORBIDDEN,
+        initial_detail = {
+            'message' : 'Tag already exists'
         }
     )
 )

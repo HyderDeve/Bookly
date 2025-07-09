@@ -7,6 +7,7 @@ from src.books.structs import BookResponse,BookDetailResponse
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from typing import List
+from src.errors import TagNotFound
 
 tag_router = APIRouter()
 tags_service = TagService()
@@ -31,18 +32,11 @@ async def get_all_tags(token_details = Depends(access_token_bearer), session : A
     
 @tag_router.get('/{tag_id}',response_model = TagResponse)
 async def get_tag_by_id(tag_id : str, token_details = Depends(access_token_bearer), session : AsyncSession = Depends(get_session)):
-    
-    try:
-        tag = await tags_service.get_tag_by_id(tag_id,session)
-    
-        return tag
-    
-    except Exception as e:
 
-        raise HTTPException(
-            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail = str(e)
-        )
+    tag = await tags_service.get_tag_by_id(tag_id,session)
+    
+    return tag
+    
     
 
 @tag_router.post('/', response_model = TagResponse)

@@ -4,10 +4,10 @@ from .services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from .utils import create_access_token, decode_token,verify_password
-from datetime import timedelta
+from datetime import timedelta, datetime
 from fastapi.responses import JSONResponse
 from .dependencies import AccessTokenBearer, RefreshTokenBearer, RoleChecker, get_current_user
-from datetime import datetime, timedelta
+from src.errors import (UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken)
 
 
 auth_router = APIRouter()
@@ -24,10 +24,7 @@ async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends
     user_exists = await user_service.user_exists(email, session)  # Check if the user already exists in the database
 
     if user_exists:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="User with this email already exists."
-        )
+        raise UserAlreadyExists()
     
     new_user = await user_service.create_user(user_data,session)
 
@@ -75,10 +72,7 @@ async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(
                 }
             )
     
-    raise HTTPException(
-        status_code = status.HTTP_401_UNAUTHORIZED,
-        detail = "Invalid Email Or Password"
-    )
+    raise InvalidCredentials()
 
 
 @auth_router.get("/refresh-token")
@@ -100,10 +94,7 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
                 "access_token": new_access_token
             })
     
-    raise HTTPException(
-        status_code= status.HTTP_400_BAD_REQUEST,
-        detail="Invalid or expired refresh token."
-    )
+    raise InvalidToken()
 
     return {}
 

@@ -7,6 +7,7 @@ from src.db.main import get_session
 from src.books.services import BookService
 from src.auth.dependencies import AccessTokenBearer
 from src.auth.dependencies import RoleChecker
+from src.errors import BookNotFound
 
 book_router = APIRouter()
 book_service = BookService() #declared service struct for connection purposes to bring service functions here
@@ -59,8 +60,7 @@ async def get_book_by_id(book_id:str, session: AsyncSession = Depends(get_sessio
     if book:
         return book # Return the book if found
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Book with id {book_id} not found.")
+        raise BookNotFound()
 
 #PUT /books/{id}
 @book_router.patch("/{book_id}",response_model=BookResponse,dependencies = [role_checker])
@@ -71,8 +71,7 @@ async def update_book(book_id:str, book_update_data:BookUpdateModel,session: Asy
     if updated_book:
         return updated_book
     else:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                        detail=f"Book with id {book_id} not found.")
+        raise BookNotFound()
 
 
     
@@ -83,7 +82,7 @@ async def delete_book(book_id:str,session: AsyncSession = Depends(get_session),t
     delete_book = await book_service.delete_book(book_id, session)
 
     if delete_book is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND)
+        raise BookNotFound()
     else:
         return {"message": "Book deleted successfully."}
 

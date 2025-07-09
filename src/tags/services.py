@@ -5,6 +5,7 @@ from fastapi.responses import JSONResponse
 from .structs import TagCreateRequest, TagAddRequest
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.books.services import BookService
+from src.errors import TagNotFound, BookNotFound, TagAlreadyExists
 
 book_service = BookService()
 
@@ -23,7 +24,7 @@ class TagService:
         except Exception as e:
 
             return JSONResponse(
-                status_code = status.HTTP_404_NOT_FOUND,
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content = {'message' : str(e)}
             )
     
@@ -34,12 +35,15 @@ class TagService:
 
             tag = await session.exec(statement)
 
-            return tag.first()
+            if tag is not None:
+                return tag.first()
+            else:
+                raise TagNotFound()
         
         except Exception as e:
 
             return JSONResponse(
-                status_code = status.HTTP_404_NOT_FOUND,
+                status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
                 content = {'message' : str(e)}
             )
 
@@ -55,10 +59,7 @@ class TagService:
             tag = result.first()
 
             if tag:
-                raise HTTPException(
-                    status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail = {'message' : 'Tag already exists'}
-                )
+                raise TagAlreadyExists()
             
             new_tag = Tag(name = tag_data.name)
             
@@ -81,10 +82,7 @@ class TagService:
             book = await book_service.get_book_by_id(book_id=book_id, session=session)
 
             if not book:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail={'message': 'book not found'}
-                )
+                raise BookNotFound()
 
             for tag_item in tag_data.tags:
                 # Find tag by name
@@ -134,10 +132,8 @@ class TagService:
                 return tag
             
             else:
-                raise HTTPException(
-                    status_code = status.HTTP_404_NOT_FOUND,
-                    detail = {'message':'Tag not found'}
-                )
+
+                raise TagNotFound()
             
         except Exception as e:
             
@@ -155,13 +151,6 @@ class TagService:
 
             await session.commit()
 
-            return JSONResponse(
-                status_code = status.HTTP_200_OK,
-                content = {'message' : 'Tag deleted successfully'}
-            )
-        
+            return {'message' : 'Tag Successfully deleted'}
         else:
-            return JSONResponse(
-                status_code = status.HTTP_404_NOT_FOUND,
-                content = {'message' : 'Tag not found service error'}
-            )
+            raise TagNotFound()
