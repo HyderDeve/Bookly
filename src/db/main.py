@@ -13,7 +13,7 @@ ssl_context = ssl.create_default_context()
 engine = AsyncEngine(
     create_engine(
     url=Config.DATABASE_URL,
-    echo=True,  # Echo SQL statements to the console for debugging + logging purposes
+    # echo=True,  # Echo SQL statements to the console for debugging + logging purposes
     connect_args={'ssl' : ssl_context}
 ))
 
