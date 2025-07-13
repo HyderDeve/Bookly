@@ -1,6 +1,11 @@
 from fastapi import FastAPI
 from fastapi.requests import Request
 import time
+import logging
+
+logger = logging.getLogger('uvicorn.access')
+logger.disabled = True   #Disable the default uvicorn logger
+
 
 def register_middleware(app: FastAPI):
     
