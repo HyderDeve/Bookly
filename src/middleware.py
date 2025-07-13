@@ -1,4 +1,5 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 from fastapi.requests import Request
 import time
 import logging
@@ -24,5 +25,24 @@ def register_middleware(app: FastAPI):
         print(message)
         
         return response
+    
+    
+#------------------- We Have Implemented This Using Dependency Injection -----------------#
+
+    # @app.middleware('http')
+    # async def authorization_middleware(request : Request, call_next):
+        
+    #     if not 'Authorization' in request.headers:
+    #         return JSONResponse(
+    #             content = {'message' : 'Not Authenticated',
+    #                        'Resolution' : 'Provide Valid Credentials'},
+    #             status_code = status.HTTP_401_UNAUTHORIZED
+    #         )
+        
+    #     response = await call_next(request)
+
+    #     return response
+
+#------------------- We Have Implemented This Using Dependency Injection -----------------#
 
 
