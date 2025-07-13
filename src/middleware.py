@@ -15,13 +15,13 @@ def register_middleware(app: FastAPI):
         
         start_time = time.time()
 
-        print('Before Processing', start_time)
-
         response = await call_next(request)
 
         processing_time = time.time() - start_time
 
-        print('After Processing', processing_time)
+        message = f"{request.client.host}:{request.client.port} - {request.method} - {request.url.path} - Status Code: {response.status_code} - Completed after {processing_time}s"
+
+        print(message)
         
         return response
 
