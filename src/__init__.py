@@ -6,6 +6,7 @@ from src.tags.routes import tag_router
 from contextlib import asynccontextmanager
 from src.db.main import init_db
 from src.errors import register_all_errors
+from .middleware import register_middleware
 
 @asynccontextmanager
 async def life_span(app:FastAPI):
@@ -28,6 +29,7 @@ app = FastAPI(
 register_all_errors(app)
 #---------------------Custom Error Handlers ended---------------------#
 
+register_middleware(app)
 
 #------------------All Routers Handled------------------#
 
