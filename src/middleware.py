@@ -1,6 +1,8 @@
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 from fastapi.requests import Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
 import time
 import logging
 
@@ -26,6 +28,19 @@ def register_middleware(app: FastAPI):
         
         return response
     
+    app.add_middleware(
+        CORSMiddleware,
+        allow_orgins = ['*'] ,  # Allows all origins, you can specify a list of allowed origins
+        allow_methods = ['*'] ,
+        allow_headers = ['*'] ,
+        allow_credentials = True
+
+        )
+    
+    app.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts = ['*']  # Allows all hosts, you can specify a list of allowed hosts
+    )
     
 #------------------- We Have Implemented This Using Dependency Injection -----------------#
 

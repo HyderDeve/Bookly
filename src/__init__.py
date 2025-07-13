@@ -29,7 +29,10 @@ app = FastAPI(
 register_all_errors(app)
 #---------------------Custom Error Handlers ended---------------------#
 
+#--------------------- Middleware Handled---------------------#
 register_middleware(app)
+#--------------------- Middleware Handled---------------------#
+
 
 #------------------All Routers Handled------------------#
 
