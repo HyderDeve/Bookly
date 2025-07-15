@@ -8,7 +8,7 @@ from datetime import timedelta, datetime
 from fastapi.responses import JSONResponse
 from .dependencies import AccessTokenBearer, RefreshTokenBearer, RoleChecker, get_current_user
 from src.errors import (UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken)
-
+from src.mail import create_message, mail
 
 auth_router = APIRouter()
 user_service = UserService()  # Create an instance of UserService for handling user operations
@@ -20,7 +20,24 @@ REFRESH_TOKEN_EXPIRY = 2
 
 @auth_router.post('/send-mail')
 async def send_mail(emails : EmailRequest):
-    pass
+    
+    emails = emails.addresses
+
+    html = '<h1>Welcome To The App</h1>'
+
+    message = create_message(
+        receipients = emails,
+        subject = 'Account Created Successfully',
+        body = html
+    )
+
+    await mail.send_message(message)
+
+    return JSONResponse(
+        content = {'message' : 'Email Sent Successfully'},
+        status_code = status.HTTP_201_CREATED
+    )
+    
 
 @auth_router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends(get_session)):
