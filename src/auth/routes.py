@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks
+from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest
 from .services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
@@ -15,6 +15,12 @@ user_service = UserService()  # Create an instance of UserService for handling u
 role_checker = RoleChecker(['admin','user'])
 
 REFRESH_TOKEN_EXPIRY = 2
+
+
+
+@auth_router.post('/send-mail')
+async def send_mail(emails : EmailRequest):
+    pass
 
 @auth_router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends(get_session)):
