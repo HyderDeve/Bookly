@@ -39,7 +39,7 @@ def register_middleware(app: FastAPI):
     
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts = ['*']  # Allows all hosts, you can specify a list of allowed hosts
+        allowed_hosts = ['localhost', '127.0.0.1']  # Allows all hosts, you can specify a list of allowed hosts
     )
     
 #------------------- We Have Implemented This Using Dependency Injection -----------------#
