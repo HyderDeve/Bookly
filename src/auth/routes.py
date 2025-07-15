@@ -3,12 +3,13 @@ from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, E
 from .services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
-from .utils import create_access_token, decode_token,verify_password
+from .utils import create_access_token, decode_token,verify_password, create_url_safe_token, decode_url_safe_token
 from datetime import timedelta, datetime
 from fastapi.responses import JSONResponse
 from .dependencies import AccessTokenBearer, RefreshTokenBearer, RoleChecker, get_current_user
 from src.errors import (UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken)
 from src.mail import create_message, mail
+from src.config import Config
 
 auth_router = APIRouter()
 user_service = UserService()  # Create an instance of UserService for handling user operations
@@ -39,7 +40,7 @@ async def send_mail(emails : EmailRequest):
     )
     
 
-@auth_router.post("/signup", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+@auth_router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends(get_session)):
     
     email = user_data.email 
@@ -51,7 +52,65 @@ async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends
     
     new_user = await user_service.create_user(user_data,session)
 
-    return new_user
+    token = create_url_safe_token({"email" : email})
+
+    link = f"http://{Config.DOMAIN}/api/v1/auth/verify/{token}"
+
+    html_message = f"""
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f9fc; padding: 40px 0;">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <tr>
+              <td align="center" style="padding-bottom: 20px;">
+                <img src="https://static.vecteezy.com/system/resources/previews/020/336/484/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg" alt="Train Grains Logo" width="150" style="display: block;" />
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 20px; color: #333333; font-weight: bold; text-align: center;">
+                Verify Your Email
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 16px; color: #555555; line-height: 1.6; padding: 20px 0; text-align: center;">
+                Hi there,<br />
+                Thank you for signing up. Please confirm your email address to activate your account.
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 20px;">
+                <a href="{link}" style="background-color: #007BFF; color: #ffffff; padding: 14px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  Confirm Email
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 14px; color: #999999; text-align: center; padding-top: 30px;">
+                If you did not sign up for this account, you can safely ignore this email.
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 12px; color: #cccccc; text-align: center; padding-top: 20px;">
+                © {datetime.now().year} Train Grains, All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    """
+    message = create_message(
+        receipients = [email],
+        subject = 'Verify Your Account',
+        body = html_message
+    )
+
+    await mail.send_message(message)
+
+    return {
+            'message' : 'Account Created Successfully! Check your email to verify your account',
+            'user' : new_user
+        }
 
 
 @auth_router.post("/login", status_code = status.HTTP_201_CREATED)
