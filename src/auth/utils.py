@@ -1,5 +1,8 @@
+from fastapi.responses import JSONResponse
 from passlib.context import CryptContext
 from datetime import timedelta, datetime
+from itsdangerous import URLSafeTimedSerializer
+
 from src.config import Config
 import jwt
 import uuid
@@ -55,3 +58,32 @@ def decode_token(token: str) -> dict:
     except jwt.PyJWTError as e:
         logging.exception(e)
         return None
+
+#----------- Declared As A Global Variable Here -----------#
+serialize = URLSafeTimedSerializer(
+        secret_key = Config.JWT_SECRET,
+        salt = 'email-configuration'
+    )
+#----------- Declared As A Global Variable Here -----------#
+
+
+def create_url_safe_token(data : dict):
+
+
+    token = serialize.dumps(data)
+
+    return token
+
+
+def decode_url_safe_token(token : str):
+
+    try :
+        token_data = serialize.loads(token)
+
+        return token_data
+
+    except Exception as e:
+
+        return JSONResponse(
+            content = {'message' : str(e)}
+        )

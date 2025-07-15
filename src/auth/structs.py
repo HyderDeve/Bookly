@@ -36,3 +36,6 @@ class UserBooks(UserResponse):
 class UserLoginModel(BaseModel):
     email: str
     password: str
+
+class EmailRequest(BaseModel):
+    addresses : List[str]

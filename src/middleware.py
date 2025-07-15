@@ -30,7 +30,7 @@ def register_middleware(app: FastAPI):
     
     app.add_middleware(
         CORSMiddleware,
-        allow_orgins = ['*'] ,  # Allows all origins, you can specify a list of allowed origins
+        allow_origins = ['*'] ,  # Allows all origins, you can specify a list of allowed origins
         allow_methods = ['*'] ,
         allow_headers = ['*'] ,
         allow_credentials = True
