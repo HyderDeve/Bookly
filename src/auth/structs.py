@@ -39,3 +39,6 @@ class UserLoginModel(BaseModel):
 
 class EmailRequest(BaseModel):
     addresses : List[str]
+
+class PasswordResetRequest(BaseModel):
+    email : str

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest
+from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest, PasswordResetRequest
 from .services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
@@ -217,4 +217,75 @@ async def get_current_user(
     _ : bool = Depends(role_checker)):
 
     return user
+
+
+@auth_router.post('/password-reset' , status_code = status.HTTP_201_CREATED)
+async def password_reset_request(email_data : PasswordResetRequest):
+    
+    email = email_data.email
+
+    token = create_url_safe_token({"email" : email})
+
+    link = f"http://{Config.DOMAIN}/api/v1/auth/password-reset-confirm/{token}"
+
+    html_message = f"""
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f6f9fc; padding: 40px 0;">
+      <tr>
+        <td align="center">
+          <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 8px; padding: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <tr>
+              <td align="center" style="padding-bottom: 20px;">
+                <img src="https://static.vecteezy.com/system/resources/previews/020/336/484/non_2x/tesla-logo-tesla-icon-transparent-png-free-vector.jpg" alt="Train Grains Logo" width="150" style="display: block;" />
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 20px; color: #333333; font-weight: bold; text-align: center;">
+                Reset Your Password
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 16px; color: #555555; line-height: 1.6; padding: 20px 0; text-align: center;">
+                Hi there,<br />
+                Thank you for signing up. Please confirm your email address to activate your account.
+              </td>
+            </tr>
+            <tr>
+              <td align="center" style="padding: 20px;">
+                <a href="{link}" style="background-color: #007BFF; color: #ffffff; padding: 14px 24px; text-decoration: none; border-radius: 5px; display: inline-block;">
+                  Confirm Email
+                </a>
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 14px; color: #999999; text-align: center; padding-top: 30px;">
+                If you did not sign up for this account, you can safely ignore this email.
+              </td>
+            </tr>
+            <tr>
+              <td style="font-size: 12px; color: #cccccc; text-align: center; padding-top: 20px;">
+                © {datetime.now().year} Train Grains, All rights reserved.
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+    """
+    
+    message = create_message(
+        receipients = [email],
+        subject = 'Reset Your Password',
+        body = html_message
+    )
+
+    await mail.send_message(message)
+
+    return JSONResponse(
+        content = {
+            'message' : 'Please Check Your Email To Reset Your Password',
+          },
+          status_code = status.HTTP_201_CREATED
+    )
+
+    
     
