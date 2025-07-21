@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest, PasswordResetRequest
+from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest, PasswordResetRequest, PasswordConfirmRequest
 from .services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
-from .utils import create_access_token, decode_token,verify_password, create_url_safe_token, decode_url_safe_token
+from .utils import create_access_token, decode_token,verify_password, create_url_safe_token, decode_url_safe_token, generate_hash_password
 from datetime import timedelta, datetime
 from fastapi.responses import JSONResponse
 from .dependencies import AccessTokenBearer, RefreshTokenBearer, RoleChecker, get_current_user
@@ -287,5 +287,45 @@ async def password_reset_request(email_data : PasswordResetRequest):
           status_code = status.HTTP_201_CREATED
     )
 
+
+
+@auth_router.post('/password-reset-confirm/{token}')
+async def reset_password(token : str, password : PasswordConfirmRequest, session : AsyncSession = Depends(get_session)):
     
+    new_password  = password.new_password
+    confirm_password = password.confirm_password
+
+    if new_password != confirm_password:
+        raise HTTPException(
+            status_code = status.HTTP_400_BAD_REQUEST,
+            detail = {
+                'message' : 'Passwords do not match'
+            }
+        )
+
+    token_data = decode_url_safe_token(token)
+
+    user_email = token_data.get('email')
+
+    if user_email is not None:
+        
+        user = await user_service.get_user_by_email(user_email,session)
+
+        if not user:
+            raise UserNotFound()
+        
+        password_hash  = generate_hash_password(new_password)
+
+        await user_service.update_user(user, {'password' : password_hash}, session)
+
+        return JSONResponse(
+            content = {
+                'message' : 'Password Reset successfully'
+            },
+            status_code = status.HTTP_200_OK 
+        )
     
+    return JSONResponse(
+        content = {'message' : 'Error Resetting Password'},
+        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+    )
