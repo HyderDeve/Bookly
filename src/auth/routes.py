@@ -1,12 +1,15 @@
 from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi.responses import JSONResponse
+
 from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest, PasswordResetRequest, PasswordConfirmRequest
 from .services import UserService
-from sqlmodel.ext.asyncio.session import AsyncSession
-from src.db.main import get_session
 from .utils import create_access_token, decode_token,verify_password, create_url_safe_token, decode_url_safe_token, generate_hash_password
-from datetime import timedelta, datetime
-from fastapi.responses import JSONResponse
 from .dependencies import AccessTokenBearer, RefreshTokenBearer, RoleChecker, get_current_user
+
+from datetime import timedelta, datetime
+from sqlmodel.ext.asyncio.session import AsyncSession
+
+from src.db.main import get_session
 from src.errors import (UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken)
 from src.mail import create_message, mail
 from src.config import Config
