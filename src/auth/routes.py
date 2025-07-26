@@ -220,7 +220,7 @@ async def get_current_user(
 
 
 @auth_router.post('/password-reset' , status_code = status.HTTP_201_CREATED)
-async def password_reset_request(email_data : PasswordResetRequest):
+async def password_reset_request(email_data : PasswordResetRequest, background_tasks : BackgroundTasks):
     
     email = email_data.email
 
@@ -278,7 +278,7 @@ async def password_reset_request(email_data : PasswordResetRequest):
         body = html_message
     )
 
-    await mail.send_message(message)
+    background_tasks.add_task(mail.send_message, message)
 
     return JSONResponse(
         content = {
