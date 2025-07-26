@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest, PasswordResetRequest, PasswordConfirmRequest
 from .services import UserService
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -20,7 +20,7 @@ REFRESH_TOKEN_EXPIRY = 2
 
 
 @auth_router.post('/send-mail')
-async def send_mail(emails : EmailRequest):
+async def send_mail(emails : EmailRequest, background_tasks : BackgroundTasks):
     
     emails = emails.addresses
 
@@ -32,7 +32,7 @@ async def send_mail(emails : EmailRequest):
         body = html
     )
 
-    await mail.send_message(message)
+    background_tasks.add_task(mail.send_message, message)
 
     return JSONResponse(
         content = {'message' : 'Email Sent Successfully'},
@@ -41,7 +41,7 @@ async def send_mail(emails : EmailRequest):
     
 
 @auth_router.post("/signup", status_code=status.HTTP_201_CREATED)
-async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends(get_session)):
+async def create_user(user_data: UserCreateModel, background_tasks : BackgroundTasks,session: AsyncSession = Depends(get_session)):
     
     email = user_data.email 
 
@@ -105,7 +105,7 @@ async def create_user(user_data: UserCreateModel,session: AsyncSession = Depends
         body = html_message
     )
 
-    await mail.send_message(message)
+    background_tasks.add_task(mail.send_message, message)
 
     return {
             'message' : 'Account Created Successfully! Check your email to verify your account',
