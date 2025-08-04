@@ -16,7 +16,7 @@ def get_session_mock():
 
 access_token_bearer = AccessTokenBearer()
 refresh_token_bearer = RefreshTokenBearer()
-role_checker = RoleChecker()
+role_checker = RoleChecker(['admin'])
 
 app.dependency_overrides[get_session] = get_session_mock # here we are overriding the get_session dependency with our mock session dependency
 app.dependency_overrides[role_checker] = Mock()
