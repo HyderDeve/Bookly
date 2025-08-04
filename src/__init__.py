@@ -22,6 +22,16 @@ app = FastAPI(
     title= "Bookly",
     description= "A RESTAPI for a book review web service",
     version = version,
+    license_info = {
+       'name':'MIT', 
+       'url':'https://opensource.org/license/mit'
+    },
+    contact = {
+        'name' : 'Hyder Ali Hashmi',
+        'email' : 'hyderhashmi17@gmail.com',
+        'url' : 'github.com/hyderdeve/bookly',
+        },
+        redoc_url = f'/api/{version}/docs'
     # lifespan=life_span # This is like the main function in golang
 )
 
