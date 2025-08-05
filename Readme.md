@@ -46,7 +46,7 @@ bookly/
 │   │   └── main.py          # Database connection management
 │   └── config.py            # Application configuration
 ├── tests/                   # Unit and integration tests
-└── alembic/                # Database migrations
+└── migrations/                # Database migrations
 ```
 
 ## API Endpoints
