@@ -16,7 +16,6 @@ Bookly is a robust Book Management System built with FastAPI, providing a RESTfu
 
 ### Technical Features
 - **Async Database**: PostgreSQL with SQLModel for async operations
-- **Redis Integration**: Token blacklisting and caching
 - **Mail Integration**: SMTP email service for notifications
 - **API Documentation**: Auto-generated Swagger/OpenAPI documentation
 - **Error Handling**: Comprehensive error management system
@@ -119,7 +118,8 @@ bookly/
 
 6. Start the server:
    ```bash
-   uvicorn src.__init__:app --reload
+   fastapi dev src/ #This is for development mode
+   fastapi run src/ #This is for production mode
    ```
 
 ## Development
