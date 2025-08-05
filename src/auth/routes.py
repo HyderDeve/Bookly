@@ -13,6 +13,7 @@ from src.db.main import get_session
 from src.errors import (UserAlreadyExists, UserNotFound, InvalidCredentials, InvalidToken)
 from src.mail import create_message, mail
 from src.config import Config
+from typing import Any
 
 auth_router = APIRouter()
 user_service = UserService()  # Create an instance of UserService for handling user operations
@@ -43,7 +44,7 @@ async def send_mail(emails : EmailRequest, background_tasks : BackgroundTasks):
     )
     
 
-@auth_router.post("/signup", status_code=status.HTTP_201_CREATED)
+@auth_router.post("/signup", status_code=status.HTTP_201_CREATED, responses = {500 : {'message' : 'According To The Error'}, 403 : { "description": "Not authorized", "model": Any}})
 async def create_user(user_data: UserCreateModel, background_tasks : BackgroundTasks,session: AsyncSession = Depends(get_session)):
     
     email = user_data.email 
