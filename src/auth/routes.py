@@ -207,7 +207,15 @@ async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(
     email = login_data.email
     password = login_data.password
 
-    user = await user_service.get_user_by_email(email,session)
+    try:
+    
+      user = await user_service.get_user_by_email(email,session)
+    
+    except Exception as e:
+        JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {'message' : str(e)}
+        )
 
     if user is not None:
         password_valid = verify_password(password, user.password)
@@ -278,12 +286,38 @@ async def get_current_user(
     return user
 
 
-@auth_router.post('/password-reset' , status_code = status.HTTP_201_CREATED)
+@auth_router.post('/password-reset' , status_code = status.HTTP_201_CREATED, responses = {
+    201 : {
+              "description": "Password Reset Link Sent Successfully",
+            "content": {
+                "application/json": {
+                    "example":{'message' : "Please Check Email To Reset Password"}
+                  }
+                }
+              },
+    500 : {
+            "description": "Internal Server Error",
+              "content": {
+                "application/json": {
+                    "example":{'message' : "Customized Error Message"}
+                  }
+                }
+              }
+          })
 async def password_reset_request(email_data : PasswordResetRequest, background_tasks : BackgroundTasks):
     
     email = email_data.email
 
-    token = create_url_safe_token({"email" : email})
+    try:
+        
+        token = create_url_safe_token({"email" : email})
+
+    except Exception as e:
+        
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {'message' : str(e)}
+        )
 
     link = f"http://{Config.DOMAIN}/api/v1/auth/password-reset-confirm/{token}"
 
@@ -337,7 +371,17 @@ async def password_reset_request(email_data : PasswordResetRequest, background_t
         body = html_message
     )
 
-    background_tasks.add_task(mail.send_message, message)
+    try:
+        
+        background_tasks.add_task(mail.send_message, message)
+
+    except Exception as e:
+        
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {'message' : str(e)}
+        )
+
 
     return JSONResponse(
         content = {
@@ -348,7 +392,7 @@ async def password_reset_request(email_data : PasswordResetRequest, background_t
 
 
 
-@auth_router.post('/password-reset-confirm/{token}')
+@auth_router.post('/password-reset-confirm/{token}', responses = {201:{'description': 'Created','content':{'application/json': {'example' : {'message':'Password Reset Successfully'}}}},400:{'description': 'Bad Request','content':{'application/json': {'example' : {'message':'Passwords do not match'}}}},500:{'description': 'Internal Server Error','content':{'application/json': {'example' : {'message':'Error While Decoding Token'}}}}} )
 async def reset_password(token : str, password : PasswordConfirmRequest, session : AsyncSession = Depends(get_session)):
     
     new_password  = password.new_password
@@ -362,9 +406,20 @@ async def reset_password(token : str, password : PasswordConfirmRequest, session
             }
         )
 
-    token_data = decode_url_safe_token(token)
+    try:
 
-    user_email = token_data.get('email')
+      token_data = decode_url_safe_token(token)
+
+      user_email = token_data.get('email')
+    
+    except Exception as e:
+        
+        return JSONResponse(
+            status_code = status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {
+                'message' : str(e)
+            }
+        )
 
     if user_email is not None:
         
@@ -381,7 +436,7 @@ async def reset_password(token : str, password : PasswordConfirmRequest, session
             content = {
                 'message' : 'Password Reset successfully'
             },
-            status_code = status.HTTP_200_OK 
+            status_code = status.HTTP_201_CREATED 
         )
     
     return JSONResponse(
