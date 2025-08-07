@@ -44,6 +44,25 @@ async def send_mail(emails : EmailRequest, background_tasks : BackgroundTasks):
     )
     
 @auth_router.post("/signup", status_code=status.HTTP_201_CREATED, responses = {
+    201 : {"description": "Created",
+        "content": {
+            "application/json": {
+                "example": {
+                     'message' : 'Account Created Successfully! Check your email to verify your account',
+                      "user": {
+                            "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+                            "email": "user@example.com",
+                            "username": "johndoe",
+                            "first_name": "John",
+                            "last_name": "Doe",
+                            "role": "user",
+                            "is_verified": False,
+                            "created_at": "2025-08-08T12:00:00",
+                            "updated_at": "2025-08-08T12:00:00"
+                        }
+                }
+            }
+        }},
     500 : {"description": "Internal Server Error",
         "content": {
             "application/json": {
@@ -201,7 +220,23 @@ async def verify_account(token: str, session: AsyncSession = Depends(get_session
             }
         )
 
-@auth_router.post("/login", status_code = status.HTTP_201_CREATED)
+@auth_router.post("/login", status_code = status.HTTP_201_CREATED, responses = {
+    201: {'description' : 'Created', 'content':{'application/json' : {'example' : 
+      {
+        'message' : 'Login Successful',
+                    "access_token": 'access_token',
+                    "refresh_token": 'refresh_token',
+                    "user" : {
+                        "email": 'user.email',
+                        "user_id": 'str(user.id)'
+                    }
+      }}}},
+      500:{'description' : 'Internal Server Error', 'content':{'application/json' : {'example' : 
+      {
+        'message' : "Email Doesn't Exists"}}}},
+      403:{'description' : 'Forbidden Access', 'content':{'application/json' : {'example' : 
+      {
+        'message' : "Login Failed, Forbidden Access"}}}}})
 async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(get_session)):
     
     email = login_data.email
@@ -392,7 +427,7 @@ async def password_reset_request(email_data : PasswordResetRequest, background_t
 
 
 
-@auth_router.post('/password-reset-confirm/{token}', responses = {201:{'description': 'Created','content':{'application/json': {'example' : {'message':'Password Reset Successfully'}}}},400:{'description': 'Bad Request','content':{'application/json': {'example' : {'message':'Passwords do not match'}}}},500:{'description': 'Internal Server Error','content':{'application/json': {'example' : {'message':'Error While Decoding Token'}}}}} )
+@auth_router.post('/password-reset-confirm/{token}',status_code = status.HTTP_201_CREATED, responses = {201:{'description': 'Created','content':{'application/json': {'example' : {'message':'Password Reset Successfully'}}}},400:{'description': 'Bad Request','content':{'application/json': {'example' : {'message':'Passwords do not match'}}}},500:{'description': 'Internal Server Error','content':{'application/json': {'example' : {'message':'Error While Decoding Token'}}}}} )
 async def reset_password(token : str, password : PasswordConfirmRequest, session : AsyncSession = Depends(get_session)):
     
     new_password  = password.new_password
