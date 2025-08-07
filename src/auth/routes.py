@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks, responses
 from fastapi.responses import JSONResponse
 
 from .structs import UserCreateModel, UserResponse, UserLoginModel, UserBooks, EmailRequest, PasswordResetRequest, PasswordConfirmRequest
@@ -43,8 +43,24 @@ async def send_mail(emails : EmailRequest, background_tasks : BackgroundTasks):
         status_code = status.HTTP_201_CREATED
     )
     
-
-@auth_router.post("/signup", status_code=status.HTTP_201_CREATED, responses = {500 : {'message' : 'According To The Error'}, 403 : { "description": "Not authorized", "model": Any}})
+@auth_router.post("/signup", status_code=status.HTTP_201_CREATED, responses = {
+    500 : {"description": "Internal Server Error",
+        "content": {
+            "application/json": {
+                "example": {
+                    "message": "Customized Message"
+                }
+            }
+        }},
+    403 : {
+        "description": "Not authorized",
+        "content": {
+            "application/json": {
+                "example": {
+                    "message": "Not Authorized"
+                }
+            }
+        }}})
 async def create_user(user_data: UserCreateModel, background_tasks : BackgroundTasks,session: AsyncSession = Depends(get_session)):
     
     email = user_data.email 
@@ -117,34 +133,73 @@ async def create_user(user_data: UserCreateModel, background_tasks : BackgroundT
         }
 
 
-@auth_router.get('/verify/{token}')
-async def verify_account(token : str, session : AsyncSession = Depends(get_session)):
-    
-    token_data = decode_url_safe_token(token)
+@auth_router.get('/verify/{token}',responses={
+        200: {
+            "description": "Account verified successfully",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "message": "Account verified successfully"
+                    }
+                }
+            }
+        },
+        500: {
+            "description": "Internal Server Error",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "invalid_token": {
+                            "summary": "Invalid Token Error",
+                            "value": {
+                                "message": "Invalid token format",
+                                "error_code": "INVALID_TOKEN",
+                                "timestamp": "2025-08-07T12:00:00"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+)
+async def verify_account(token: str, session: AsyncSession = Depends(get_session)):
+    try:
+        token_data = decode_url_safe_token(token)
 
-    user_email = token_data.get('email')
+        user_email = token_data.get('email')
 
-    if user_email is not None:
-        
-        user = await user_service.get_user_by_email(user_email,session)
+        if user_email is None:
+            return JSONResponse(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                content={
+                    "message": "Invalid token format",
+                    "error_code": "Invalid Token",
+                    "timestamp": datetime.now().isoformat()
+                }
+            )
+
+        user = await user_service.get_user_by_email(user_email, session)
 
         if not user:
             raise UserNotFound()
         
-        await user_service.update_user(user, {'is_verified' : True}, session)
+        await user_service.update_user(user, {'is_verified': True}, session)
 
         return JSONResponse(
-            content = {
-                'message' : 'Account verified successfully'
-            },
-            status_code = status.HTTP_200_OK 
+            content={"message": "Account verified successfully"},
+            status_code=status.HTTP_200_OK
         )
-    
-    return JSONResponse(
-        content = {'message' : 'Error Verifying Account'},
-        status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
-    )
 
+    except Exception as e:
+        return JSONResponse(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            content={
+                "message": str(e),
+                "error_code": "Verification Error",
+                "timestamp": datetime.now().isoformat()
+            }
+        )
 
 @auth_router.post("/login", status_code = status.HTTP_201_CREATED)
 async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(get_session)):
