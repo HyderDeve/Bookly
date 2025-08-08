@@ -25,26 +25,45 @@ Bookly is a robust Book Management System built with FastAPI, providing a RESTfu
 ```
 bookly/
 ├── src/
+│   ├── __init__.py
+│   ├── config.py                # Application configuration
+│   ├── errors.py                # Custom error classes
+│   ├── mail.py                  # Email utilities
+│   ├── main.py                  # FastAPI app entry point
+│   ├── middleware.py            # Custom middleware
 │   ├── auth/
-│   │   ├── dependencies.py    # Auth middleware and dependencies
-│   │   ├── routes.py         # Authentication endpoints
-│   │   ├── services.py       # Auth business logic
-│   │   └── utils.py          # JWT and password utilities
+│   │   ├── __init__.py
+│   │   ├── dependencies.py      # Auth middleware and dependencies
+│   │   ├── routes.py            # Authentication endpoints
+│   │   ├── services.py          # Auth business logic
+│   │   ├── structs.py           # Auth Pydantic models
+│   │   └── utils.py             # JWT and password utilities
 │   ├── books/
-│   │   ├── routes.py         # Book management endpoints
-│   │   └── services.py       # Book-related operations
-│   ├── reviews/
-│   │   ├── routes.py         # Review management endpoints
-│   │   └── services.py       # Review operations
-│   ├── tags/
-│   │   ├── routes.py         # Tag management endpoints
-│   │   └── services.py       # Tag operations
+│   │   ├── __init__.py
+│   │   ├── routes.py            # Book management endpoints
+│   │   ├── services.py          # Book-related operations
+│   │   └── structs.py           # Book Pydantic models
 │   ├── db/
-│   │   ├── models.py         # SQLModel database models
-│   │   └── main.py          # Database connection management
-│   └── config.py            # Application configuration
-├── tests/                   # Unit and integration tests
-└── migrations/                # Database migrations
+│   │   ├── __init__.py
+│   │   ├── main.py              # Database connection management
+│   │   └── models.py            # SQLModel database models
+│   ├── reviews/
+│   │   ├── __init__.py
+│   │   ├── routes.py            # Review management endpoints
+│   │   ├── services.py          # Review operations
+│   │   └── structs.py           # Review Pydantic models
+│   ├── tags/
+│   │   ├── __init__.py
+│   │   ├── routes.py            # Tag management endpoints
+│   │   ├── services.py          # Tag operations
+│   │   └── structs.py           # Tag Pydantic models
+│   ├── templates/               # Jinja2 or HTML templates
+│   └── tests/
+│       ├── __init__.py
+│       ├── conftest.py
+│       ├── test_auth.py
+│       └── test_books.py
+└── migrations/                  
 ```
 
 ## API Endpoints
