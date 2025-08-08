@@ -135,7 +135,7 @@ bookly/
    
    localhost:8000/docs #Swagger UI Documentation
 
-   localhost:8000/redoc #Redoc UI Documentation
+   localhost:8000/api/v1/redoc #Redoc UI Documentation
    ```
 
 ## Development
