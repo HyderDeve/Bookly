@@ -75,7 +75,7 @@ def create_url_safe_token(data : dict):
     return token
 
 
-def decode_url_safe_token(token : str):
+def decode_url_safe_token(token : str) -> JSONResponse:
 
     try :
         token_data = serialize.loads(token)
