@@ -79,7 +79,8 @@ async def send_mail(emails : EmailRequest, background_tasks : BackgroundTasks):
                     "message": "Not Authorized"
                 }
             }
-        }}})
+        }}
+})
 async def create_user(user_data: UserCreateModel, background_tasks : BackgroundTasks,session: AsyncSession = Depends(get_session)):
     
     email = user_data.email 
@@ -236,7 +237,9 @@ async def verify_account(token: str, session: AsyncSession = Depends(get_session
         'message' : "Email Doesn't Exists"}}}},
       403:{'description' : 'Forbidden Access', 'content':{'application/json' : {'example' : 
       {
-        'message' : "Login Failed, Forbidden Access"}}}}})
+        'message' : "Login Failed, Forbidden Access"}}}}
+    }
+  )
 async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(get_session)):
     
     email = login_data.email
@@ -288,7 +291,7 @@ async def login_user(login_data:UserLoginModel, session: AsyncSession = Depends(
     raise InvalidCredentials()
 
 
-@auth_router.get("/refresh-token")
+@auth_router.get("/refresh-token",responses = {200:{'description' : 'Access Token Refreshed', 'content' : {'application/json' : {'example':{"message": "Access token refreshed successfully.", "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImVtYWlsIjo..."}}}},500:{'description' : 'Internal Server Error', 'content' : {'application/json' : {'example':{"message": "Server Not Responding."}}}},403:{'description' : 'Forbidden Access', 'content' : {'application/json' : {'example':{"message": "Token is expired or invalid."}}}}})
 async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
 
     """
@@ -313,7 +316,7 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
 
 
 # GET /auth/me
-@auth_router.get('/me',response_model=UserBooks)
+@auth_router.get('/me',response_model=UserBooks,responses = {500:{'description' : 'Internal Server Error', 'content' : {'application/json' : {'example' : {'message' : 'Customized Error Message'}}}},403:{'description' : 'Forbidden Access', 'content' : {'application/json' : {'example' : {'message' : 'Insufficient Permissions'}}}}})
 async def get_current_user(
     user = Depends(get_current_user),
     _ : bool = Depends(role_checker)):
