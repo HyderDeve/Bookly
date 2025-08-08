@@ -312,7 +312,6 @@ async def access_token(token_details:dict = Depends(RefreshTokenBearer())):
     
     raise InvalidToken()
 
-    return {}
 
 
 # GET /auth/me
