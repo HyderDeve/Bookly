@@ -50,13 +50,16 @@ bookly/
 ## API Endpoints
 
 ### Authentication
-- **POST /api/v1/auth/signup**: Register new user
-- **POST /api/v1/auth/login**: User login
-- **POST /api/v1/auth/logout**: User logout
-- **GET /api/v1/auth/verify/{token}**: Verify email
-- **GET /api/v1/auth/me**: Get current user
+- **POST /api/v1/auth/send-mail** : Send verification email
+- **POST /api/v1/auth/signup** : Register new user
+- **POST /api/v1/auth/login** : Login user
+- **GET /api/v1/auth/verify/{token}** : Verify user email
+- **GET /api/v1/auth/refresh-token** : Get new access token
+- **GET /api/v1/auth/me** : Get current user details
+- **POST /api/v1/auth/password-reset** : Request password reset
+- **POST /api/v1/auth/password-reset-confirm/{token}** : Reset password with token
+  
 
-### Books
 ### Books
 - **GET /api/v1/books/** : List all books
 - **POST /api/v1/books/** : Create new book
@@ -123,7 +126,16 @@ bookly/
 6. Start the server:
    ```bash
    fastapi dev src/ #This is for development mode
+
    fastapi run src/ #This is for production mode
+   ```
+
+7. View Documentation:
+   ```bash
+   
+   localhost:8000/docs #Swagger UI Documentation
+
+   localhost:8000/redoc #Redoc UI Documentation
    ```
 
 ## Development

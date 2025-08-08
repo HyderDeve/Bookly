@@ -31,7 +31,7 @@ app = FastAPI(
         'email' : 'hyderhashmi17@gmail.com',
         'url' : 'https://github.com/hyderdeve/bookly',
         },
-        redoc_url = f'/api/{version}/docs'
+        redoc_url = f'/api/{version}/redoc'
     # lifespan=life_span # This is like the main function in golang
 )
 
