@@ -20,9 +20,6 @@ access_token_bearer = AccessTokenBearer()
     403:{'description' : 'Forbidden Access', 'content':{'application/json' : {'example' : 
       {
         'message' : "Token is invalid or expired"}}}},
-    404:{'description' : 'Book Not Found', 'content':{'application/json' : {'example' : 
-      {
-        'message' : "Book not found"}}}}
 })
 async def add_review(book_id:str, review_data : ReviewCreateModel, current_user: User = Depends(get_current_user), session : AsyncSession = Depends(get_session)):
 
@@ -81,7 +78,7 @@ async def get_review_by_id(review_id : str,  token_details = Depends(access_toke
       403:{'description' : 'Forbidden Access', 'content':{'application/json' : {'example' : 
       {
         'message' : "Token is invalid or expired"}}}},    
-      404:{'description' : 'Book Not Found', 'content':{'application/json' : {'example' : 
+      404:{'description' : 'Review Not Found', 'content':{'application/json' : {'example' : 
       {
         'message' : "Review not found"}}}}
     })
