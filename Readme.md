@@ -41,7 +41,6 @@ bookly/
 │   │   └── services.py       # Tag operations
 │   ├── db/
 │   │   ├── models.py         # SQLModel database models
-│   │   ├── redis.py          # Redis configuration
 │   │   └── main.py          # Database connection management
 │   └── config.py            # Application configuration
 ├── tests/                   # Unit and integration tests
@@ -58,21 +57,26 @@ bookly/
 - **GET /api/v1/auth/me**: Get current user
 
 ### Books
-- **GET /api/v1/books**: List all books
-- **POST /api/v1/books**: Create new book
-- **GET /api/v1/books/{id}**: Get book details
-- **PATCH /api/v1/books/{id}**: Update book
-- **DELETE /api/v1/books/{id}**: Delete book
+### Books
+- **GET /api/v1/books/** : List all books
+- **POST /api/v1/books/** : Create new book
+- **GET /api/v1/books/user/{user_id}** : Get books by user ID
+- **GET /api/v1/books/{book_id}** : Get book details by ID
+- **PATCH /api/v1/books/{book_id}** : Update book details
+- **DELETE /api/v1/books/{book_id}** : Delete a book
 
 ### Reviews
-- **POST /api/v1/reviews**: Create review
-- **GET /api/v1/reviews/book/{book_id}**: Get book reviews
-- **PATCH /api/v1/reviews/{id}**: Update review
-- **DELETE /api/v1/reviews/{id}**: Delete review
+- **POST /api/v1/reviews/book/{book_id}**: Add Review
+- **GET /api/v1/reviews**: Get all reviews
+- **GET /api/v1/reviews/{review_id}**: Get review by Id
+- **DELETE /api/v1/reviews/{review_id}**: Delete review
 
 ### Tags
-- **POST /api/v1/tags**: Create tag
 - **GET /api/v1/tags**: List all tags
+- **POST /api/v1/tags**: Create tag
+- **GET /api/v1/tags/{tag_id}** : Get Tag By Id
+- **PATCH /api/v1/tags/{tag_id}** : Update Tags
+- **DELETE /api/v1/tags/{tag_id}** : Delete Tags
 - **POST /api/v1/tags/book/{book_id}**: Add tags to book
 
 ## Setup and Installation
