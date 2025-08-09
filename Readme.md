@@ -144,9 +144,9 @@ bookly/
 
 6. Start the server:
    ```bash
-   fastapi dev src/ #This is for development mode
+   fastapi dev src/main.py #This is for development mode
 
-   fastapi run src/ #This is for production mode
+   fastapi run src/main.py #This is for production mode
    ```
 
 7. View Documentation:
