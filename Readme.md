@@ -157,6 +157,15 @@ bookly/
    localhost:8000/api/v1/redoc #Redoc UI Documentation
    ```
 
+7. View Live (Hosted) Documentation:
+   ```bash
+   
+   https://bookly-api-service.onrender.com/docs #Swagger UI Documentation
+
+   https://bookly-api-service.onrender.com/api/v1/redoc #Redoc UI Documentation
+   ```
+
+
 ## Development
 
 ### Running Tests
